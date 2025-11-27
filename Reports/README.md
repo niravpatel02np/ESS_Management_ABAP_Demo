@@ -1,0 +1,1 @@
+This folder contains all standalone ABAP reports developed as part of the **Employee Self-Service and Management Application** project. These reports are designed to provide managers and employees with easy access to key HR-related information such as leave balances, attendance records, payroll summaries, and other operational data.
