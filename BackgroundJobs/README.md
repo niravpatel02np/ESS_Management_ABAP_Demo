@@ -1,0 +1,1 @@
+This folder contains ABAP programs and configurations related to **background jobs**, scheduled processes, and batch tasks in the **Employee Self-Service and Management Application**. These jobs automate repetitive tasks, improve efficiency, and ensure timely updates for HR operations.
