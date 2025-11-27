@@ -1,0 +1,1 @@
+This folder contains the **driver program for SmartForms** used in the Employee Self-Service and Management Application. The driver program handles all the payroll calculations and integrates with the corresponding SmartForms to generate formatted outputs such as payslips.
