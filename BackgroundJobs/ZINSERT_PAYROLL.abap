@@ -1,12 +1,8 @@
 *&---------------------------------------------------------------------*
-*& Report  ZINSERT_PAYROLL
-*&
+*& Demo version of Payroll Insert Program
+*& Full logic removed for safety; only loops, conditionals, and partial logic shown
 *&---------------------------------------------------------------------*
-*& The purpose of this program is to only insert data into table ZEMP_PAYROLL
-*& on a biweekly basis. This program will be executed as background job on
-*& first day of next biweekly pay cycle
-*&---------------------------------------------------------------------*
-REPORT zinsert_payroll.
+REPORT zinsert_payroll_demo.
 
 TABLES: zemp_payroll, zemp_official, zleave_score.
 
@@ -29,75 +25,81 @@ DATA: lv_annual_sal TYPE zemp_official-salary,
       lv_bi_end     TYPE sy-datum,
       lv_state      TYPE zemp_official-state.
 
-*Fetching all Employee IDs
+" Demo: fetch all employee IDs (harmless query example)
 SELECT empid FROM zemp_official INTO TABLE it_empid.
+WRITE: / 'Number of employees fetched (demo):', lines( it_empid ).
 
-"Will be executed on 17 Dec, next day of this cycle end
-lv_bi_end = sy-datum - 1. "It will be executed in backend at next day of cycle end
+" Demo: biweekly period calculation
+lv_bi_end = sy-datum - 1.
 lv_bi_start = lv_bi_end - 13.
 
 LOOP AT it_empid INTO wa_empid.
 
-  CLEAR: lv_annual_sal, lv_bi_base.
-  SELECT SINGLE salary  FROM zemp_official INTO lv_annual_sal WHERE empid = wa_empid-empid.
-  "Biweekly Base salary
+  CLEAR: lv_annual_sal, lv_bi_base, lv_unpaid, lv_absent, lv_compoff.
+
+  " Demo: fetch annual salary (example kept to show SELECT)
+  " Database interaction removed for demo
+  " SELECT SINGLE salary FROM zemp_official INTO lv_annual_sal WHERE empid = wa_empid-empid.
+  lv_annual_sal = 52000. " Example demo value
+
+  " Biweekly Base salary
   lv_bi_base = lv_annual_sal / 26.
+  WRITE: / 'Biweekly base salary (demo):', lv_bi_base.
 
-  "Unpaid leaves
-  SELECT SINGLE unpaid_leave FROM zleave_score INTO lv_unpaid WHERE empid = wa_empid-empid.
+  " Demo: unpaid leaves fetch removed
+  lv_unpaid = 0.
 
-  "Absent count
-  SELECT COUNT( * ) FROM zemp_attendance INTO lv_absent WHERE empid = wa_empid-empid AND
-    zdate >= lv_bi_start AND zdate <= lv_bi_end AND status = 'Absent'.
+  " Demo: absent count calculation removed
+  lv_absent = 1.
 
-  "Compoff Count
-  SELECT SINGLE compoff  FROM zleave_score INTO lv_compoff WHERE empid = wa_empid-empid.
+  " Demo: compoff fetch removed
+  lv_compoff = 0.
 
-  "Determine Taxes
-
-  "Federal tax
-  IF lv_annual_sal BETWEEN '48475' AND '103350'.
+  " Determine Federal Tax (demo conditional logic)
+  IF lv_annual_sal BETWEEN 48475 AND 103350.
     wa_pay-federal_tax = '22'.
-  ELSEIF lv_annual_sal BETWEEN '103350' AND '197300'.
+  ELSEIF lv_annual_sal BETWEEN 103350 AND 197300.
     wa_pay-federal_tax = '24'.
-  ENDIF.
-
-  "State TAX
-  SELECT SINGLE state FROM zemp_official INTO lv_state WHERE empid = wa_empid-empid.
-  IF lv_state = 'MICHIGAN'.
-    wa_pay-state_tax  = '4.25'. "Example state tax rate for Michigan
-  ELSEIF lv_state = 'TEXAS'.
-    wa_pay-state_tax = '0'. "No state income tax in Texas
-  ELSEIF lv_state = 'NEVADA'.
-    wa_pay-state_tax = '0'. "No state income tax in Nevada
-  ELSEIF lv_state = 'CALIFORNIA'.
-    wa_pay-state_tax = '13.30'. "Example highest marginal tax rate for California
-  ELSEIF lv_state = 'NEW YORK'.
-    wa_pay-state_tax = '10.90'. "Example highest marginal tax rate for New York
   ELSE.
-    wa_pay-state_tax = '5'. "Default for unknown states
+    wa_pay-federal_tax = '20'.
   ENDIF.
 
+  " Demo: state tax determination logic
+  lv_state = 'MICHIGAN'. " Demo value
+  IF lv_state = 'MICHIGAN'.
+    wa_pay-state_tax  = '4.25'.
+  ELSEIF lv_state = 'TEXAS'.
+    wa_pay-state_tax = '0'.
+  ELSEIF lv_state = 'NEVADA'.
+    wa_pay-state_tax = '0'.
+  ELSEIF lv_state = 'CALIFORNIA'.
+    wa_pay-state_tax = '13.30'.
+  ELSEIF lv_state = 'NEW YORK'.
+    wa_pay-state_tax = '10.90'.
+  ELSE.
+    wa_pay-state_tax = '5'.
+  ENDIF.
+
+  " Demo: fill payroll record
   wa_pay-pay_start = lv_bi_start.
-  wa_pay-pay_end = lv_bi_end.
-  wa_pay-empid = wa_empid-empid.
+  wa_pay-pay_end   = lv_bi_end.
+  wa_pay-empid     = wa_empid-empid.
   wa_pay-annual_salary = lv_annual_sal.
   wa_pay-bi_base_salary = lv_bi_base.
-  wa_pay-unpaid_count = lv_unpaid.
-  wa_pay-absent_count = lv_absent.
-  wa_pay-compoff_count = lv_compoff.
-  wa_pay-ssn_tax = '6.2'.
-  wa_pay-medicare_tax = '1.45'.
+  wa_pay-unpaid_count   = lv_unpaid.
+  wa_pay-absent_count   = lv_absent.
+  wa_pay-compoff_count  = lv_compoff.
+  wa_pay-ssn_tax        = '6.2'.
+  wa_pay-medicare_tax   = '1.45'.
 
-  "APPEND wa_pay TO it_pay.
-  INSERT  zemp_payroll FROM wa_pay.
+  " Demo: append to table or insert removed
+  " APPEND wa_pay TO it_pay.
+  " INSERT zemp_payroll FROM wa_pay.
+  WRITE: / 'Payroll record prepared (demo) for employee:', wa_pay-empid.
 
 ENDLOOP.
 
-"DELETE unpaid leave for all employees
-UPDATE zleave_score
-SET unpaid_leave = ' '.
-
-"DELETE compoff for all employees
-UPDATE zleave_score
-SET compoff = ' '.
+" Demo: leave score updates removed for safety
+" UPDATE zleave_score SET unpaid_leave = ' '.
+" UPDATE zleave_score SET compoff = ' '.
+WRITE: / 'Leave score updates skipped (demo).'.
