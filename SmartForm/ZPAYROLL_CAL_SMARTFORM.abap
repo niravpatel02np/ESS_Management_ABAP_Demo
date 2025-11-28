@@ -2,6 +2,7 @@
 *& Report  ZPAYROLL_CAL_SMARTFORM
 *&
 *&---------------------------------------------------------------------*
+*& Full logic removed for safety; only loops, conditionals, and partial logic shown
 *& The report is executed whenever employee want to see their payslip.
 *& This Report is actually Driver program for the smartform.
 *&---------------------------------------------------------------------*
@@ -11,17 +12,7 @@ TABLES: zemp_official, zemp_personal, zleave_score, zemp_attendance, zemp_payrol
 
 DATA: v_empid TYPE zemp_official-empid.
 
-DATA: it_off TYPE STANDARD TABLE OF   zemp_official,
-      wa_off LIKE LINE OF it_off.
-
-DATA: it_per TYPE STANDARD TABLE OF   zemp_personal,
-      wa_per LIKE LINE OF it_per.
-
-DATA: it_pay TYPE STANDARD TABLE OF zemp_payroll,
-      wa_pay LIKE LINE OF it_pay.
-
-DATA: it_map TYPE STANDARD TABLE OF dselc,
-      wa_map TYPE dselc.
+  " Code removed here
 
 DATA: fm_name TYPE rs38l_fnam.
 
@@ -30,61 +21,7 @@ TYPES: BEGIN OF ty_period,
          period TYPE zpay_per-period,
        END OF ty_period.
 
-TYPES: BEGIN OF ty_smartform,
-         empid       TYPE zemp_official-empid,
-         name        TYPE c LENGTH 60,
-         designation TYPE zemp_official-designation,
-         department  TYPE zemp_official-practice_unit,
-         pay_start   TYPE sy-datum,
-         pay_end     TYPE sy-datum,
-         pay_date    TYPE sy-datum,
-         annual_sal  TYPE zemp_official-salary,
-         base_sal    TYPE zemp_official-salary,
-         compff      TYPE zemp_official-salary,
-         gross       TYPE zemp_official-salary,
-         unpaid_ded  TYPE zemp_official-salary,
-         absent_dad  TYPE zemp_official-salary,
-         federal     TYPE zemp_official-salary,
-         state       TYPE zemp_official-salary,
-         ssn         TYPE zemp_official-salary,
-         medicare    TYPE zemp_official-salary,
-         tax         TYPE zemp_official-salary,
-         total_ded   TYPE zemp_official-salary,
-         net_sal     TYPE zemp_official-salary,
-       END OF ty_smartform.
-
-DATA: it_period TYPE STANDARD TABLE OF ty_period.
-
-DATA: wa_smartform TYPE ty_smartform.
-
-DATA: lv_annual_sal TYPE zemp_official-salary,
-      lv_bi_base    TYPE zemp_official-salary,
-      lv_daily_rate TYPE zemp_official-salary, "usd/day
-      lv_compoff    TYPE zleave_score-compoff,
-      lv_unpaid     TYPE zleave_score-unpaid_leave,
-      lv_addition   TYPE zemp_official-salary,
-      lv_unpaid_ded TYPE zemp_official-salary,
-      lv_absent_ded TYPE zemp_official-salary,
-      lv_gross      TYPE zemp_official-salary,
-      lv_bi_start   TYPE sy-datum,
-      lv_bi_end     TYPE sy-datum,
-      lv_pay_date   TYPE sy-datum,
-      lv_federal    TYPE  zemp_official-salary,
-      lv_state      TYPE  zemp_official-salary,
-      lv_ssn        TYPE  zemp_official-salary,
-      lv_med        TYPE  zemp_official-salary,
-      lv_tax        TYPE  zemp_official-salary,
-      lv_ded        TYPE  zemp_official-salary,
-      lv_net        TYPE  zemp_official-salary,
-      v_day         TYPE c LENGTH 2,
-      v_month       TYPE c LENGTH 2,
-      v_year        TYPE c LENGTH 4,
-      v_date        TYPE c LENGTH 8,
-      v_name        TYPE string,
-      v_unpaid      TYPE zemp_payroll-unpaid_count,
-      v_absent      TYPE zemp_payroll-absent_count.
-
-
+  " Code removed here
 
 SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE text-001.
 
@@ -140,31 +77,16 @@ START-OF-SELECTION.
   "v_empid = '111111'.
 
 ***ID, Designation & Practice Unit
-  CLEAR: wa_off.   "need to pass
-  SELECT SINGLE * FROM zemp_official INTO wa_off WHERE empid = v_empid.
-
+  " Code removed here
 ***Name
-  CLEAR: wa_per.
-  SELECT SINGLE * FROM zemp_personal INTO wa_per WHERE empid = v_empid.
-  CONCATENATE wa_per-firstname wa_per-middlename wa_per-lastname INTO v_name SEPARATED BY space.
+  " Code removed here
 
 
 ***Extracting Biweekly Pay period start and end date
-  "start date
-  CLEAR: v_day, v_month, v_year,v_date.
-  v_day = p_period+0(2).
-  v_month = p_period+2(2).
-  v_year = p_period+4(4).
-  CONCATENATE v_year v_month  v_day INTO v_date .
-
-  lv_bi_start = v_date.
+  " Code removed here
 
   "end date
-  CLEAR: v_day, v_month, v_year,v_date.
-  v_day = p_period+9(2).
-  v_month = p_period+11(2).
-  v_year = p_period+13(4).
-  CONCATENATE v_year v_month  v_day INTO v_date .
+  " Code removed here
 
   lv_bi_end = v_date.
 
@@ -181,11 +103,7 @@ START-OF-SELECTION.
 
 
   "Daily rate
-  lv_daily_rate = lv_annual_sal / 260.
-*260 days is based on a typical full-time work year, excluding weekends and holidays
-*52 weeks in a year
-*5 working days per week (Monday through Friday).
-*52 weeks × 5 days = 260 working days.
+  " Code removed here
 
 
   "Additional pay for compoff overwork
@@ -205,48 +123,14 @@ START-OF-SELECTION.
 
 *TAXES
 *Federal Tax
-  lv_federal = ( lv_gross * wa_pay-federal_tax ) / 100.
-
-*State Tax
-  lv_state = ( lv_gross * wa_pay-state_tax ) / 100.
-
-*SSN Tax
-  lv_ssn = ( lv_gross * wa_pay-ssn_tax ) / 100.
-
-*Medicare Tax
-  lv_med = ( lv_gross * wa_pay-medicare_tax ) / 100.
-
-*Total Taxes
-  lv_tax = lv_federal + lv_state + lv_ssn + lv_med.
-
-*Total deductions
-  lv_ded = lv_unpaid_ded + lv_absent_ded + lv_tax.
+  " Code removed here
 
 *Net pay
   lv_net = lv_gross - lv_ded.
 
   CLEAR: wa_smartform.
 
-  wa_smartform-empid = v_empid.
-  wa_smartform-name       = v_name.
-  wa_smartform-designation = wa_off-designation.
-  wa_smartform-department  = wa_off-practice_unit.
-  wa_smartform-pay_start   = lv_bi_start.
-  wa_smartform-pay_end    = lv_bi_end.
-  wa_smartform-pay_date    = lv_pay_date.
-  wa_smartform-annual_sal  = lv_annual_sal.
-  wa_smartform-base_sal   = lv_bi_base.
-  wa_smartform-compff      = lv_addition.
-  wa_smartform-gross      = lv_gross.
-  wa_smartform-unpaid_ded = lv_unpaid_ded.
-  wa_smartform-absent_dad  = lv_absent_ded.
-  wa_smartform-federal     = lv_federal.
-  wa_smartform-state      = lv_state.
-  wa_smartform-ssn         = lv_ssn.
-  wa_smartform-medicare    = lv_med.
-  wa_smartform-tax = lv_tax.
-  wa_smartform-total_ded   = lv_ded.
-  wa_smartform-net_sal     = lv_net.
+  " Code removed here
 
 
 END-OF-SELECTION.
