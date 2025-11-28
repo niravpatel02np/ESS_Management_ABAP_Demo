@@ -1,6 +1,6 @@
 *&---------------------------------------------------------------------*
 *& Report  ZLEAVE_HISTORY_REPORT
-*&
+*& Full logic removed for safety; only loops, conditionals, and partial logic shown
 *&---------------------------------------------------------------------*
 *&
 *&
@@ -9,22 +9,7 @@ REPORT zleave_applications_manager.
 
 TABLES: zleave_histo.
 
-TYPES: BEGIN OF ty_hist,
-         icon        TYPE char4,
-         leaveid     LIKE zleave_histo-leaveid,
-         begin_date  LIKE zleave_histo-begin_date,
-         end_date    LIKE zleave_histo-end_date,
-         applydate   LIKE zleave_histo-applydate,
-         applytime   LIKE zleave_histo-applytime,
-         day_type    LIKE zleave_histo-day_type,
-         no_of_days  LIKE zleave_histo-no_of_days,
-         leave_type  LIKE zleave_histo-leave_type,
-         reason      LIKE zleave_histo-reason,
-         approver    LIKE zleave_histo-approver,
-         status      LIKE zleave_histo-status,
-         approved_on LIKE zleave_histo-approved_on,
-         zcomment    LIKE zleave_histo-zcomment,
-       END OF ty_hist.
+" Code removed here
 
 DATA: it_hist TYPE STANDARD TABLE OF ty_hist,
       wa_hist LIKE LINE OF  it_hist.
@@ -45,20 +30,7 @@ CONSTANTS: c_green  TYPE icon-id VALUE '@08@',
            c_red    TYPE icon-id VALUE '@0A@'.
 
 
-SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE text-001.
-PARAMETERS: p_empid  TYPE zleave_histo-empid.
-PARAMETERS   c_team AS CHECKBOX DEFAULT ''.
-SELECTION-SCREEN END OF BLOCK b1.
-SKIP 2.
-
-SELECTION-SCREEN BEGIN OF BLOCK b2 WITH FRAME TITLE text-002.
-PARAMETERS: p_status TYPE zleave_histo-status.
-SELECTION-SCREEN END OF BLOCK b2.
-
-SELECTION-SCREEN BEGIN OF BLOCK b3 WITH FRAME TITLE text-003.
-SELECT-OPTIONS: s_pdate FOR zleave_histo-approved_on,
-                s_adate FOR zleave_histo-applydate.
-SELECTION-SCREEN END OF BLOCK b3.
+" Code removed here
 
 START-OF-SELECTION.
   PERFORM fetch_data.
@@ -92,45 +64,16 @@ FORM fetch_data .
         status EQ p_status.
 
     ELSE.
-      SELECT * FROM zleave_histo INTO CORRESPONDING FIELDS OF TABLE it_hist
-  WHERE approver EQ v_id AND
-  approved_on IN s_pdate AND
-  applydate IN s_adate AND
-  empid EQ p_empid  AND
-        status EQ p_status.
+  " Code removed here
     ENDIF.
   ELSE.
-    IF c_team = 'X'.
-      SELECT * FROM zleave_histo INTO CORRESPONDING FIELDS OF TABLE it_hist
-  WHERE approver EQ v_id AND
-  approved_on IN s_pdate AND
-  applydate IN s_adate.
-
-
-    ELSE.
-      SELECT * FROM zleave_histo INTO CORRESPONDING FIELDS OF TABLE it_hist
-  WHERE approver EQ v_id AND
-  approved_on IN s_pdate AND
-  applydate IN s_adate AND
-  empid EQ p_empid.
-
-    ENDIF.
+   " Code removed here
   ENDIF.
 
   IF it_hist IS INITIAL.
     MESSAGE 'No leave applications were submitted to you within the specified selection criteria.' TYPE 'I'.
   ELSE.
-    SORT it_hist BY approved_on.
-    LOOP AT it_hist INTO wa_hist.
-      IF wa_hist-status = 'Pending'.
-        MOVE c_yellow TO wa_hist-icon.
-        MODIFY it_hist FROM wa_hist.
-      ELSEIF wa_hist-status = 'Approved'.
-        MOVE c_green TO wa_hist-icon.
-        MODIFY it_hist FROM wa_hist.
-      ELSEIF wa_hist-status = 'Rejected'.
-        MOVE c_red TO wa_hist-icon.
-        MODIFY it_hist FROM wa_hist.
+" Code removed here
       ENDIF.
     ENDLOOP.
   ENDIF.
@@ -145,83 +88,7 @@ ENDFORM.
 *----------------------------------------------------------------------*
 FORM set_fieldcat .
 
-***Building Fieldcatalog
-  CLEAR: it_fieldcat.
-
-  wa_fieldcat-fieldname = 'ICON'.
-  wa_fieldcat-seltext_m = ' '.
-  wa_fieldcat-col_pos = 1.
-  APPEND wa_fieldcat TO it_fieldcat.
-  CLEAR: wa_fieldcat.
-
-  wa_fieldcat-fieldname = 'LEAVEID'.
-  wa_fieldcat-seltext_m = 'Leave ID'.
-  wa_fieldcat-col_pos = 2.
-  APPEND wa_fieldcat TO it_fieldcat.
-  CLEAR: wa_fieldcat.
-
-  wa_fieldcat-fieldname = 'EMPID'.
-  wa_fieldcat-seltext_m = 'Employee ID'.
-  wa_fieldcat-col_pos = 2.
-  APPEND wa_fieldcat TO it_fieldcat.
-  CLEAR: wa_fieldcat.
-
-  wa_fieldcat-fieldname = 'APPROVED_ON'.
-  wa_fieldcat-seltext_m = 'Processed On'.
-  wa_fieldcat-col_pos = 3.
-  APPEND wa_fieldcat TO it_fieldcat.
-  CLEAR: wa_fieldcat.
-
-  wa_fieldcat-fieldname = 'ZCOMMENT'.
-  wa_fieldcat-seltext_m = 'My Remark'.
-  wa_fieldcat-col_pos = 4.
-  APPEND wa_fieldcat TO it_fieldcat.
-  CLEAR: wa_fieldcat.
-
-  wa_fieldcat-fieldname = 'APPLYDATE'.
-  wa_fieldcat-seltext_m = 'Application Date'.
-  wa_fieldcat-col_pos = 5.
-  APPEND wa_fieldcat TO it_fieldcat.
-  CLEAR: wa_fieldcat.
-
-  wa_fieldcat-fieldname = 'BEGIN_DATE'.
-  wa_fieldcat-seltext_m = 'Leave From'.
-  wa_fieldcat-col_pos = 6.
-  APPEND wa_fieldcat TO it_fieldcat.
-  CLEAR: wa_fieldcat.
-
-  wa_fieldcat-fieldname = 'END_DATE'.
-  wa_fieldcat-seltext_m = 'Leave To'.
-  wa_fieldcat-col_pos = 7.
-  APPEND wa_fieldcat TO it_fieldcat.
-  CLEAR: wa_fieldcat.
-
-  wa_fieldcat-fieldname = 'NO_OF_DAYS'.
-  wa_fieldcat-seltext_l = 'Number of Days'.
-  wa_fieldcat-col_pos = 8.
-  APPEND wa_fieldcat TO it_fieldcat.
-  CLEAR: wa_fieldcat.
-
-  wa_fieldcat-fieldname = 'LEAVE_TYPE'.
-  wa_fieldcat-seltext_m = 'Leave Type'.
-  wa_fieldcat-col_pos = 9.
-  APPEND wa_fieldcat TO it_fieldcat.
-  CLEAR: wa_fieldcat.
-
-  wa_fieldcat-fieldname = 'REASON'.
-  wa_fieldcat-seltext_m = 'Leave Reason'.
-  wa_fieldcat-col_pos = 10.
-  APPEND wa_fieldcat TO it_fieldcat.
-  CLEAR: wa_fieldcat.
-
-  LOOP AT it_fieldcat INTO wa_fieldcat.
-    wa_fieldcat-tabname = 'IT_HIST'.
-    wa_fieldcat-just = 'C'.
-    wa_fieldcat-outputlen = 15.
-    wa_fieldcat-icon = 'X'.
-    MODIFY it_fieldcat FROM  wa_fieldcat TRANSPORTING tabname just outputlen.
-  ENDLOOP.
-
+" Code removed here
 ENDFORM.
 *&---------------------------------------------------------------------*
 *&      Form  DISPLAY_ALV
