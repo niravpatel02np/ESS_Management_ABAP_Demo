@@ -23,30 +23,6 @@ DATA: w_lines TYPE i.
 
   " Code removed
 
-DATA :  container_dp TYPE REF TO cl_gui_custom_container,
-        picture_dp   TYPE REF TO cl_gui_picture.
-
-DATA: graphic_url(255).
-DATA: url_dp(255) TYPE c.
-
-DATA: BEGIN OF graphic_table OCCURS 0,
-        line(255) TYPE x,
-      END OF graphic_table.
-
-DATA: l_graphic_conv TYPE i.
-DATA: l_graphic_offs TYPE i.
-DATA: graphic_size TYPE i.
-DATA: l_graphic_xstr TYPE xstring.
-
-DATA: BEGIN OF graphic_table_dp OCCURS 0,
-        line(255) TYPE x,
-      END OF graphic_table_dp.
-
-DATA: l_graphic_conv_dp TYPE i.
-DATA: l_graphic_offs_dp TYPE i.
-DATA: graphic_size_dp TYPE i.
-DATA: l_graphic_xstr_dp TYPE xstring.
-
 ******************************************************
 *Screen fields Declaration
 ******************************************************
@@ -81,12 +57,6 @@ DATA: it_per TYPE STANDARD TABLE OF zemp_personal,
 
 DATA: it_off TYPE STANDARD TABLE OF zemp_official,
       wa_off LIKE LINE OF it_off.
-
-DATA: it_leave TYPE STANDARD TABLE OF zleave_histo,
-      wa_leave TYPE zleave_histo.
-
-DATA: it_score TYPE STANDARD TABLE OF zleave_score,
-      wa_score LIKE LINE OF it_score.
 
 TYPES: BEGIN OF ty_leave_man.
         INCLUDE STRUCTURE zleave_histo.
