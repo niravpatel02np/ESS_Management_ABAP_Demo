@@ -1,5 +1,9 @@
 # Employee Self-Service and Management Application (SAP ABAP)
 
+> **Note:** This repository contains only **demo snippets** and example files to showcase functionality.  
+> The **full source code** is private and not included here for security reasons.
+> For the full project code, please contact me directly. This repo is meant for demonstration purposes only.
+
 ## Project Summary
 Many organizations, especially in the IT sector, struggle with inefficient systems for handling essential employee needs such as leave requests, attendance, payroll, and personal information management. These fragmented processes often cause delays, confusion, and lack of transparency, negatively impacting employee satisfaction and productivity. Managers also face challenges in tracking team attendance and managing approvals effectively.
 
