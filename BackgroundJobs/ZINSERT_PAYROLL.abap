@@ -55,14 +55,7 @@ LOOP AT it_empid INTO wa_empid.
   " Demo: compoff fetch removed
   lv_compoff = 0.
 
-  " Determine Federal Tax (demo conditional logic)
-  IF lv_annual_sal BETWEEN 48475 AND 103350.
-    wa_pay-federal_tax = '22'.
-  ELSEIF lv_annual_sal BETWEEN 103350 AND 197300.
-    wa_pay-federal_tax = '24'.
-  ELSE.
-    wa_pay-federal_tax = '20'.
-  ENDIF.
+  " Determine Federal Tax (logic removed)
 
   " Demo: state tax determination logic
   lv_state = 'MICHIGAN'. " Demo value
