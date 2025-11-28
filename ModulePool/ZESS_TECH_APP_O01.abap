@@ -1,5 +1,6 @@
 *&---------------------------------------------------------------------*
 *& Include           ZESS_TECH_APP_O01 (Demo)
+*& Full logic removed for safety; only loops, conditionals, and partial logic shown
 *&---------------------------------------------------------------------*
 
 MODULE status_0100 OUTPUT.
