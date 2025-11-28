@@ -1,23 +1,17 @@
 *&---------------------------------------------------------------------*
-*&  Include           ZESS_TECH_APP_F01
+*& Demo version of TableControl & Security Module
+*& Full logic removed for safety; only loops, conditionals, and partial logic shown
 *&---------------------------------------------------------------------*
-*&---------------------------------------------------------------------*
-*&      Module  SECURITY  OUTPUT
-*&---------------------------------------------------------------------*
-*       text
-*----------------------------------------------------------------------*
+
 MODULE security OUTPUT.
-  PERFORM security.
+  " Call demo form
+  PERFORM security_demo.
 ENDMODULE.
+
 *&---------------------------------------------------------------------*
-*&      Form  SECURITY
+*& Demo form SECURITY
 *&---------------------------------------------------------------------*
-*       text
-*----------------------------------------------------------------------*
-*  -->  p1        text
-*  <--  p2        text
-*----------------------------------------------------------------------*
-FORM security .
+FORM security_demo .
   RANGES: r_id FOR sy-uname.
 
   DATA: v_uname TYPE sy-uname,
@@ -26,357 +20,153 @@ FORM security .
 
   v_num = 102.
   v_num1 = v_num.
-  WHILE v_num <> 133.
-    IF v_num = 116 OR v_num = 120.
-      v_num = v_num + 1.
-      v_num1 = v_num.
-      CLEAR: v_uname.
-    ELSE.
-      CONCATENATE 'AUSER-' v_num1 INTO v_uname.
-      r_id-sign = 'I'.
-      r_id-option = 'EQ'.
-      r_id-low = v_uname.
-      APPEND r_id.
-      v_num = v_num + 1.
-      v_num1 = v_num.
-      CLEAR: v_uname.
-    ENDIF.
-  ENDWHILE.
 
+  " Demo loop logic removed
+
+  " Demo: show a warning (removed real INSERT/POPUP)
   IF sy-uname NOT IN r_id.
-
-  ELSE.
-
-    DATA: lv_id TYPE icon-id.
-    TABLES: icon.
-
-    SELECT SINGLE id
-      FROM icon
-      INTO lv_id
-      WHERE name = 'ICON_MESSAGE_WARNING'.
-
-    wa_proj-userid = sy-uname.
-    wa_proj-login_date = sy-datum.
-    wa_proj-time = sy-timlo.
-    INSERT zproject_secure FROM wa_proj.
-
-    CALL FUNCTION 'POPUP_TO_INFORM'
-      EXPORTING
-        titel  = 'Warning'
-        txt1   = lv_id
-        txt2   = 'You are not authorized to view my work.'
-      EXCEPTIONS
-        OTHERS = 1.
-    LEAVE TO SCREEN 0.
-
+    WRITE: / 'User not authorized (demo):', sy-uname.
   ENDIF.
+
 ENDFORM.
 
-*----------------------------------------------------------------------*
-*   INCLUDE TABLECONTROL_FORMS                                         *
-*----------------------------------------------------------------------*
-
 *&---------------------------------------------------------------------*
-*&      Form  USER_OK_TC                                               *
+*& Demo Form USER_OK_TC
 *&---------------------------------------------------------------------*
-FORM user_ok_tc USING    p_tc_name TYPE dynfnam
-                         p_table_name
-                         p_mark_name
-                CHANGING p_ok      LIKE sy-ucomm.
+FORM user_ok_tc USING p_tc_name TYPE dynfnam
+                     p_table_name
+                     p_mark_name
+            CHANGING p_ok LIKE sy-ucomm.
 
-*&SPWIZARD: BEGIN OF LOCAL DATA----------------------------------------*
   DATA: l_ok     TYPE sy-ucomm,
         l_offset TYPE i.
-*&SPWIZARD: END OF LOCAL DATA------------------------------------------*
 
-*&SPWIZARD: Table control specific operations                          *
-*&SPWIZARD: evaluate TC name and operations                            *
+  " Demo: evaluate ok_code
   SEARCH p_ok FOR p_tc_name.
   IF sy-subrc <> 0.
     EXIT.
   ENDIF.
+
   l_offset = strlen( p_tc_name ) + 1.
   l_ok = p_ok+l_offset.
-*&SPWIZARD: execute general and TC specific operations                 *
+
   CASE l_ok.
-    WHEN 'INSR'.                      "insert row
-      PERFORM fcode_insert_row USING    p_tc_name
-                                        p_table_name.
+    WHEN 'INSR'.
+      PERFORM fcode_insert_row_demo USING p_tc_name p_table_name.
       CLEAR p_ok.
-
-    WHEN 'DELE'.                      "delete row
-      PERFORM fcode_delete_row USING    p_tc_name
-                                        p_table_name
-                                        p_mark_name.
+    WHEN 'DELE'.
+      PERFORM fcode_delete_row_demo USING p_tc_name p_table_name p_mark_name.
       CLEAR p_ok.
-
-    WHEN 'P--' OR                     "top of list
-         'P-'  OR                     "previous page
-         'P+'  OR                     "next page
-         'P++'.                       "bottom of list
-      PERFORM compute_scrolling_in_tc USING p_tc_name
-                                            l_ok.
+    WHEN 'MARK'.
+      PERFORM fcode_tc_mark_lines_demo USING p_tc_name p_table_name p_mark_name.
       CLEAR p_ok.
-*     WHEN 'L--'.                       "total left
-*       PERFORM FCODE_TOTAL_LEFT USING P_TC_NAME.
-*
-*     WHEN 'L-'.                        "column left
-*       PERFORM FCODE_COLUMN_LEFT USING P_TC_NAME.
-*
-*     WHEN 'R+'.                        "column right
-*       PERFORM FCODE_COLUMN_RIGHT USING P_TC_NAME.
-*
-*     WHEN 'R++'.                       "total right
-*       PERFORM FCODE_TOTAL_RIGHT USING P_TC_NAME.
-*
-    WHEN 'MARK'.                      "mark all filled lines
-      PERFORM fcode_tc_mark_lines USING p_tc_name
-                                        p_table_name
-                                        p_mark_name   .
+    WHEN 'DMRK'.
+      PERFORM fcode_tc_demark_lines_demo USING p_tc_name p_table_name p_mark_name.
       CLEAR p_ok.
-
-    WHEN 'DMRK'.                      "demark all filled lines
-      PERFORM fcode_tc_demark_lines USING p_tc_name
-                                          p_table_name
-                                          p_mark_name .
-      CLEAR p_ok.
-
-*     WHEN 'SASCEND'   OR
-*          'SDESCEND'.                  "sort column
-*       PERFORM FCODE_SORT_TC USING P_TC_NAME
-*                                   l_ok.
-
+    WHEN OTHERS.
+      " Other operations skipped for demo
   ENDCASE.
 
-ENDFORM.                              " USER_OK_TC
+ENDFORM.
 
 *&---------------------------------------------------------------------*
-*&      Form  FCODE_INSERT_ROW                                         *
+*& Demo Form FCODE_INSERT_ROW
 *&---------------------------------------------------------------------*
-FORM fcode_insert_row
-              USING    p_tc_name           TYPE dynfnam
-                       p_table_name             .
-
-*&SPWIZARD: BEGIN OF LOCAL DATA----------------------------------------*
-  DATA l_lines_name       LIKE feld-name.
-  DATA l_selline          LIKE sy-stepl.
-  DATA l_lastline         TYPE i.
-  DATA l_line             TYPE i.
-  DATA l_table_name       LIKE feld-name.
-  FIELD-SYMBOLS <tc>                 TYPE cxtab_control.
-  FIELD-SYMBOLS <table>              TYPE STANDARD TABLE.
-  FIELD-SYMBOLS <lines>              TYPE i.
-*&SPWIZARD: END OF LOCAL DATA------------------------------------------*
+FORM fcode_insert_row_demo USING p_tc_name TYPE dynfnam
+                                 p_table_name.
+  FIELD-SYMBOLS <tc>    TYPE cxtab_control.
+  FIELD-SYMBOLS <table> TYPE STANDARD TABLE.
+  DATA l_line TYPE i.
+  DATA l_table_name LIKE feld-name.
 
   ASSIGN (p_tc_name) TO <tc>.
+  CONCATENATE p_table_name '[]' INTO l_table_name.
+  ASSIGN (l_table_name) TO <table>.
 
-*&SPWIZARD: get the table, which belongs to the tc                     *
-  CONCATENATE p_table_name '[]' INTO l_table_name. "table body
-  ASSIGN (l_table_name) TO <table>.                "not headerline
-
-*&SPWIZARD: get looplines of TableControl                              *
-  CONCATENATE 'G_' p_tc_name '_LINES' INTO l_lines_name.
-  ASSIGN (l_lines_name) TO <lines>.
-
-*&SPWIZARD: get current line                                           *
-  GET CURSOR LINE l_selline.
-  IF sy-subrc <> 0.                   " append line to table
-    l_selline = <tc>-lines + 1.
-*&SPWIZARD: set top line                                               *
-    IF l_selline > <lines>.
-      <tc>-top_line = l_selline - <lines> + 1 .
-    ELSE.
-      <tc>-top_line = 1.
-    ENDIF.
-  ELSE.                               " insert line into table
-    l_selline = <tc>-top_line + l_selline - 1.
-    l_lastline = <tc>-top_line + <lines> - 1.
+  " Demo: insert initial line
+  IF <table> IS ASSIGNED.
+    l_line = lines( <table> ) + 1.
+    INSERT INITIAL LINE INTO <table> INDEX l_line.
+    <tc>-lines = <tc>-lines + 1.
+    WRITE: / 'Inserted demo line at index:', l_line.
   ENDIF.
-*&SPWIZARD: set new cursor line                                        *
-  l_line = l_selline - <tc>-top_line + 1.
 
-*&SPWIZARD: insert initial line                                        *
-  INSERT INITIAL LINE INTO <table> INDEX l_selline.
-  <tc>-lines = <tc>-lines + 1.
-*&SPWIZARD: set cursor                                                 *
-  SET CURSOR LINE l_line.
-
-ENDFORM.                              " FCODE_INSERT_ROW
+ENDFORM.
 
 *&---------------------------------------------------------------------*
-*&      Form  FCODE_DELETE_ROW                                         *
+*& Demo Form FCODE_DELETE_ROW
 *&---------------------------------------------------------------------*
-FORM fcode_delete_row
-              USING    p_tc_name           TYPE dynfnam
-                       p_table_name
-                       p_mark_name   .
-
-*&SPWIZARD: BEGIN OF LOCAL DATA----------------------------------------*
-  DATA l_table_name       LIKE feld-name.
-
-  FIELD-SYMBOLS <tc>         TYPE cxtab_control.
-  FIELD-SYMBOLS <table>      TYPE STANDARD TABLE.
+FORM fcode_delete_row_demo USING p_tc_name TYPE dynfnam
+                                 p_table_name
+                                 p_mark_name.
+  FIELD-SYMBOLS <tc>    TYPE cxtab_control.
+  FIELD-SYMBOLS <table> TYPE STANDARD TABLE.
   FIELD-SYMBOLS <wa>.
   FIELD-SYMBOLS <mark_field>.
-*&SPWIZARD: END OF LOCAL DATA------------------------------------------*
+  DATA l_table_name LIKE feld-name.
 
   ASSIGN (p_tc_name) TO <tc>.
+  CONCATENATE p_table_name '[]' INTO l_table_name.
+  ASSIGN (l_table_name) TO <table>.
 
-*&SPWIZARD: get the table, which belongs to the tc                     *
-  CONCATENATE p_table_name '[]' INTO l_table_name. "table body
-  ASSIGN (l_table_name) TO <table>.                "not headerline
-
-*&SPWIZARD: delete marked lines                                        *
-  DESCRIBE TABLE <table> LINES <tc>-lines.
-
+  " Demo: delete all marked lines
   LOOP AT <table> ASSIGNING <wa>.
-
-*&SPWIZARD: access to the component 'FLAG' of the table header         *
     ASSIGN COMPONENT p_mark_name OF STRUCTURE <wa> TO <mark_field>.
-
     IF <mark_field> = 'X'.
       DELETE <table> INDEX syst-tabix.
-      IF sy-subrc = 0.
-        <tc>-lines = <tc>-lines - 1.
-      ENDIF.
+      <tc>-lines = <tc>-lines - 1.
+      WRITE: / 'Deleted demo line at index:', syst-tabix.
     ENDIF.
   ENDLOOP.
 
-ENDFORM.                              " FCODE_DELETE_ROW
+ENDFORM.
 
 *&---------------------------------------------------------------------*
-*&      Form  COMPUTE_SCROLLING_IN_TC
+*& Demo Form FCODE_TC_MARK_LINES
 *&---------------------------------------------------------------------*
-*       text
-*----------------------------------------------------------------------*
-*      -->P_TC_NAME  name of tablecontrol
-*      -->P_OK       ok code
-*----------------------------------------------------------------------*
-FORM compute_scrolling_in_tc USING    p_tc_name
-                                      p_ok.
-*&SPWIZARD: BEGIN OF LOCAL DATA----------------------------------------*
-  DATA l_tc_new_top_line     TYPE i.
-  DATA l_tc_name             LIKE feld-name.
-  DATA l_tc_lines_name       LIKE feld-name.
-  DATA l_tc_field_name       LIKE feld-name.
-
-  FIELD-SYMBOLS <tc>         TYPE cxtab_control.
-  FIELD-SYMBOLS <lines>      TYPE i.
-*&SPWIZARD: END OF LOCAL DATA------------------------------------------*
-
-  ASSIGN (p_tc_name) TO <tc>.
-*&SPWIZARD: get looplines of TableControl                              *
-  CONCATENATE 'G_' p_tc_name '_LINES' INTO l_tc_lines_name.
-  ASSIGN (l_tc_lines_name) TO <lines>.
-
-
-*&SPWIZARD: is no line filled?                                         *
-  IF <tc>-lines = 0.
-*&SPWIZARD: yes, ...                                                   *
-    l_tc_new_top_line = 1.
-  ELSE.
-*&SPWIZARD: no, ...                                                    *
-    CALL FUNCTION 'SCROLLING_IN_TABLE'
-      EXPORTING
-        entry_act      = <tc>-top_line
-        entry_from     = 1
-        entry_to       = <tc>-lines
-        last_page_full = 'X'
-        loops          = <lines>
-        ok_code        = p_ok
-        overlapping    = 'X'
-      IMPORTING
-        entry_new      = l_tc_new_top_line
-      EXCEPTIONS
-*       NO_ENTRY_OR_PAGE_ACT  = 01
-*       NO_ENTRY_TO    = 02
-*       NO_OK_CODE_OR_PAGE_GO = 03
-        OTHERS         = 0.
-  ENDIF.
-
-*&SPWIZARD: get actual tc and column                                   *
-  GET CURSOR FIELD l_tc_field_name
-             AREA  l_tc_name.
-
-  IF syst-subrc = 0.
-    IF l_tc_name = p_tc_name.
-*&SPWIZARD: et actual column                                           *
-      SET CURSOR FIELD l_tc_field_name LINE 1.
-    ENDIF.
-  ENDIF.
-
-*&SPWIZARD: set the new top line                                       *
-  <tc>-top_line = l_tc_new_top_line.
-
-
-ENDFORM.                              " COMPUTE_SCROLLING_IN_TC
-
-*&---------------------------------------------------------------------*
-*&      Form  FCODE_TC_MARK_LINES
-*&---------------------------------------------------------------------*
-*       marks all TableControl lines
-*----------------------------------------------------------------------*
-*      -->P_TC_NAME  name of tablecontrol
-*----------------------------------------------------------------------*
-FORM fcode_tc_mark_lines USING p_tc_name
-                               p_table_name
-                               p_mark_name.
-*&SPWIZARD: EGIN OF LOCAL DATA-----------------------------------------*
-  DATA l_table_name       LIKE feld-name.
-
-  FIELD-SYMBOLS <tc>         TYPE cxtab_control.
-  FIELD-SYMBOLS <table>      TYPE STANDARD TABLE.
+FORM fcode_tc_mark_lines_demo USING p_tc_name
+                                   p_table_name
+                                   p_mark_name.
+  FIELD-SYMBOLS <tc>    TYPE cxtab_control.
+  FIELD-SYMBOLS <table> TYPE STANDARD TABLE.
   FIELD-SYMBOLS <wa>.
   FIELD-SYMBOLS <mark_field>.
-*&SPWIZARD: END OF LOCAL DATA------------------------------------------*
+  DATA l_table_name LIKE feld-name.
 
   ASSIGN (p_tc_name) TO <tc>.
+  CONCATENATE p_table_name '[]' INTO l_table_name.
+  ASSIGN (l_table_name) TO <table>.
 
-*&SPWIZARD: get the table, which belongs to the tc                     *
-  CONCATENATE p_table_name '[]' INTO l_table_name. "table body
-  ASSIGN (l_table_name) TO <table>.                "not headerline
-
-*&SPWIZARD: mark all filled lines                                      *
   LOOP AT <table> ASSIGNING <wa>.
-
-*&SPWIZARD: access to the component 'FLAG' of the table header         *
     ASSIGN COMPONENT p_mark_name OF STRUCTURE <wa> TO <mark_field>.
-
     <mark_field> = 'X'.
   ENDLOOP.
-ENDFORM.                                          "fcode_tc_mark_lines
+
+  WRITE: / 'Marked all lines (demo)'.
+
+ENDFORM.
 
 *&---------------------------------------------------------------------*
-*&      Form  FCODE_TC_DEMARK_LINES
+*& Demo Form FCODE_TC_DEMARK_LINES
 *&---------------------------------------------------------------------*
-*       demarks all TableControl lines
-*----------------------------------------------------------------------*
-*      -->P_TC_NAME  name of tablecontrol
-*----------------------------------------------------------------------*
-FORM fcode_tc_demark_lines USING p_tc_name
-                                 p_table_name
-                                 p_mark_name .
-*&SPWIZARD: BEGIN OF LOCAL DATA----------------------------------------*
-  DATA l_table_name       LIKE feld-name.
-
-  FIELD-SYMBOLS <tc>         TYPE cxtab_control.
-  FIELD-SYMBOLS <table>      TYPE STANDARD TABLE.
+FORM fcode_tc_demark_lines_demo USING p_tc_name
+                                     p_table_name
+                                     p_mark_name.
+  FIELD-SYMBOLS <tc>    TYPE cxtab_control.
+  FIELD-SYMBOLS <table> TYPE STANDARD TABLE.
   FIELD-SYMBOLS <wa>.
   FIELD-SYMBOLS <mark_field>.
-*&SPWIZARD: END OF LOCAL DATA------------------------------------------*
+  DATA l_table_name LIKE feld-name.
 
   ASSIGN (p_tc_name) TO <tc>.
+  CONCATENATE p_table_name '[]' INTO l_table_name.
+  ASSIGN (l_table_name) TO <table>.
 
-*&SPWIZARD: get the table, which belongs to the tc                     *
-  CONCATENATE p_table_name '[]' INTO l_table_name. "table body
-  ASSIGN (l_table_name) TO <table>.                "not headerline
-
-*&SPWIZARD: demark all filled lines                                    *
   LOOP AT <table> ASSIGNING <wa>.
-
-*&SPWIZARD: access to the component 'FLAG' of the table header         *
     ASSIGN COMPONENT p_mark_name OF STRUCTURE <wa> TO <mark_field>.
-
     <mark_field> = space.
   ENDLOOP.
-ENDFORM.                                          "fcode_tc_mark_lines
+
+  WRITE: / 'Demarked all lines (demo)'.
+
+ENDFORM.
