@@ -1,5 +1,6 @@
 *&---------------------------------------------------------------------*
 *& Include           ZESS_TECH_APP_I01 (Demo)
+*& Full logic removed for safety; only loops, conditionals, and partial logic shown
 *&---------------------------------------------------------------------*
 
 MODULE user_command_0100 INPUT.
