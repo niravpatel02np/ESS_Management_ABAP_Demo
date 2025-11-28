@@ -1,5 +1,6 @@
 *&---------------------------------------------------------------------*
 *& Include ZESS_TECH_APP_TOP                                 Module Pool      ZESS_TECH_APP
+*& Full logic removed for safety; only loops, conditionals, and partial logic shown
 *&
 *&---------------------------------------------------------------------*
 PROGRAM zess_tech_app.
@@ -7,8 +8,7 @@ PROGRAM zess_tech_app.
 ******************************************************
 *Table Declaration
 ******************************************************
-TABLES: zemp_credes, zemp_official, zemp_personal, zproject_secure.
-TABLES: zleave_histo, zleave_score.
+  " Code removed
 
 ******************************************************
 *Types
@@ -21,11 +21,7 @@ TYPES pict_line(256) TYPE c.
 ******************************************************
 DATA: w_lines TYPE i.
 
-DATA :  container TYPE REF TO cl_gui_custom_container,
-        editor    TYPE REF TO cl_gui_textedit,
-        picture   TYPE REF TO cl_gui_picture,
-        pict_tab  TYPE TABLE OF pict_line,
-        url(255)  TYPE c.
+  " Code removed
 
 DATA :  container_dp TYPE REF TO cl_gui_custom_container,
         picture_dp   TYPE REF TO cl_gui_picture.
@@ -68,26 +64,7 @@ DATA: ok_code        TYPE sy-ucomm,
 ******************************************************
 *Variables Declaration
 ******************************************************
-DATA: lv_key              TYPE z120_pronouns,
-      lv_description      TYPE z120_pronouns,
-      lv_sex              TYPE z120_sex,
-      lv_gender           TYPE z120_gender,
-      lv_answer           TYPE c,
-      lv_approver         TYPE z120_empid,
-      lv_email            TYPE z120_emailid,
-      lv_leaveid          TYPE zleave_histo-leaveid,
-      lv_bal              TYPE zleave_score-leave_balance,
-      lv_balance          TYPE zleave_score-leave_balance,
-      lv_upd_bal          TYPE zleave_score-leave_balance,
-      lv_fieldname        TYPE fieldname,
-      lv_date             TYPE sy-datum,
-      lv_day              LIKE dtresr-weekday,
-      lv_contains_weekend TYPE abap_bool VALUE abap_false,
-      lv_leave_type       TYPE z120_leavetype,
-      lv_no_days          TYPE p DECIMALS 2,
-      lv_div              TYPE p DECIMALS 2 VALUE '2.0',
-      v_empid             TYPE zemp_official-empid,
-      v_id                TYPE zemp_official-email_id.
+  " Code removed
 
 ******************************************************
 *Flags
