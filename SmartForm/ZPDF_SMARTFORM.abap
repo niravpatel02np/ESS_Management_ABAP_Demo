@@ -85,10 +85,7 @@ FORM uf_getreportdata .
 
   lv_pay_date = lv_bi_end + 1. "need to pass
 
-  SELECT SINGLE * FROM zemp_payroll INTO wa_pay WHERE empid = v_empid AND pay_start = lv_bi_start AND pay_end = lv_bi_end .
-  IF wa_pay IS INITIAL.
-    MESSAGE 'No payslip is available for this pay period.' TYPE 'E'.
-  ENDIF.
+  " Code removed here
 *Annual Salary
   lv_annual_sal  = wa_pay-annual_salary.  "need to pass
 *Biweekly Base salary
@@ -179,8 +176,6 @@ FORM uf_runsmartform .
 ENDFORM. " UF_RUNSMARTFORM
 
 FORM uf_converttootf .
-
-  t_otf[] = t_otfdata-otfdata[].
 
   " Code removed here
 
